@@ -26,17 +26,18 @@ public class CloudinaryService {
     @SuppressWarnings("unchecked")
     public String uploadPdf(byte[] pdfBytes, String publicId) {
         String fullPublicId = "invoices/" + publicId;
-        log.info("[CloudinaryService] Starting upload | publicId: '{}', fileSize: {} bytes (~{} KB)",
-                fullPublicId, pdfBytes.length, pdfBytes.length / 1024);
-        log.debug("[CloudinaryService] Upload params -> resource_type: raw, format: pdf");
+        log.info("[CloudinaryService] Starting upload | folder: 'invoices', publicId: '{}', fileSize: {} bytes (~{} KB)",
+                publicId, pdfBytes.length, pdfBytes.length / 1024);
+        log.debug("[CloudinaryService] Upload params -> resource_type: image, folder: invoices, format: pdf");
         long start = System.currentTimeMillis();
         try {
             Map<String, Object> uploadResult = cloudinary.uploader().upload(
                     pdfBytes,
                     ObjectUtils.asMap(
                             "resource_type", "image",
-                            "public_id", fullPublicId,
-                            "format", "pdf"
+                            "folder",        "invoices",
+                            "public_id",     publicId,
+                            "format",        "pdf"
                     )
             );
 
