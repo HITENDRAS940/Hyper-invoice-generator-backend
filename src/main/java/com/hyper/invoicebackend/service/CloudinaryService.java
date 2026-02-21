@@ -50,10 +50,10 @@ public class CloudinaryService {
             // downloads with the correct filename instead of trying to render the PDF
             String downloadUrl = cloudinary.url()
                     .resourceType("image")
-                    .transformation(new Transformation()
-                            .flags("attachment:" + publicId + ".pdf"))
                     .secure(true)
-                    .generate(fullPublicId);
+                    .transformation(new Transformation()
+                            .flags("attachment"))
+                    .generate(fullPublicId + ".pdf");
 
             log.info("[CloudinaryService] Upload SUCCESS in {} ms | downloadUrl: {}", elapsed, downloadUrl);
             log.debug("[CloudinaryService] Cloudinary response details -> public_id: '{}', bytes: {}, resource_type: {}, created_at: {}",
