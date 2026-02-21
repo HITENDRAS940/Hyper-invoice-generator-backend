@@ -28,16 +28,19 @@ public class CloudinaryService {
         String fullPublicId = "invoices/" + publicId;
         log.info("[CloudinaryService] Starting upload | folder: 'invoices', publicId: '{}', fileSize: {} bytes (~{} KB)",
                 publicId, pdfBytes.length, pdfBytes.length / 1024);
-        log.debug("[CloudinaryService] Upload params -> resource_type: image, folder: invoices, format: pdf");
+        log.debug("[CloudinaryService] Upload params -> resource_type: raw, folder: invoices, format: pdf");
         long start = System.currentTimeMillis();
         try {
+            // For raw files, we often need to append the extension manually to the public_id
+            // so that the downloaded file has the correct extension.
+            String finalPublicId = publicId.endsWith(".pdf") ? publicId : publicId + ".pdf";
+
             Map<String, Object> uploadResult = cloudinary.uploader().upload(
                     pdfBytes,
                     ObjectUtils.asMap(
-                            "resource_type", "image",
+                            "resource_type", "raw",
                             "folder",        "invoices",
-                            "public_id",     publicId,
-                            "format",        "pdf"
+                            "public_id",     finalPublicId
                     )
             );
 
@@ -47,7 +50,9 @@ public class CloudinaryService {
             Object resourceType = uploadResult.get("resource_type");
 
             String secureUrl = (String) uploadResult.get("secure_url");
-            String downloadUrl = secureUrl.replace("/upload/", "/upload/fl_attachment/");
+            // raw files do not support image transformations like fl_attachment in the URL path.
+            // If strictly needed, Content-Disposition headers should be set during upload.
+            String downloadUrl = secureUrl;
 
             log.info("[CloudinaryService] Upload SUCCESS in {} ms | downloadUrl: {}", elapsed, downloadUrl);
             log.debug("[CloudinaryService] Cloudinary response details -> public_id: '{}', bytes: {}, resource_type: {}, created_at: {}",
