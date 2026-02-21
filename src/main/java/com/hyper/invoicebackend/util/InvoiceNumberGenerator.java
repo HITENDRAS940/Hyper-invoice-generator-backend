@@ -1,11 +1,13 @@
 package com.hyper.invoicebackend.util;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
+@Slf4j
 @Component
 public class InvoiceNumberGenerator {
 
@@ -16,12 +18,15 @@ public class InvoiceNumberGenerator {
      * Example: INV-20260221-A1B2C3D4
      */
     public String generate() {
+        log.debug("[InvoiceNumberGenerator] Generating invoice number...");
         String datePart = LocalDate.now().format(DATE_FORMATTER);
         String uniquePart = UUID.randomUUID().toString()
                 .replace("-", "")
                 .substring(0, 8)
                 .toUpperCase();
-        return "INV-" + datePart + "-" + uniquePart;
+        String invoiceNumber = "INV-" + datePart + "-" + uniquePart;
+        log.info("[InvoiceNumberGenerator] Generated invoice number: {}", invoiceNumber);
+        return invoiceNumber;
     }
 }
 

@@ -26,8 +26,19 @@ public class InvoiceController {
     @PostMapping("/generate")
     public ResponseEntity<InvoiceResponseDTO> generateInvoice(
             @Valid @RequestBody InvoiceRequestDTO request) {
-        log.info("Received invoice generation request for bookingId: {}", request.getBookingId());
+        log.info("========== [InvoiceController] Incoming POST /api/invoices/generate ==========");
+        log.info("[InvoiceController] Request payload -> bookingId: {}", request.getBookingId());
+
+        long startTime = System.currentTimeMillis();
+
         InvoiceResponseDTO response = invoiceService.generateInvoice(request);
+
+        long elapsed = System.currentTimeMillis() - startTime;
+        log.info("[InvoiceController] Invoice generation completed in {} ms", elapsed);
+        log.info("[InvoiceController] Response -> invoiceNumber: {}, cloudinaryUrl: {}, message: {}",
+                response.getInvoiceNumber(), response.getCloudinaryUrl(), response.getMessage());
+        log.info("========== [InvoiceController] Returning HTTP 201 CREATED ==========");
+
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 }

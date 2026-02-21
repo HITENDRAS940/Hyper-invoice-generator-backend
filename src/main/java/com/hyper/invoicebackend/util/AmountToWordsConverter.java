@@ -1,5 +1,6 @@
 package com.hyper.invoicebackend.util;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -8,6 +9,7 @@ import java.math.BigDecimal;
  * Converts a BigDecimal amount to Indian English words.
  * Example: 1180.50 → "One Thousand One Hundred Eighty Rupees and Fifty Paise Only"
  */
+@Slf4j
 @Component
 public class AmountToWordsConverter {
 
@@ -23,7 +25,11 @@ public class AmountToWordsConverter {
     };
 
     public String convert(BigDecimal amount) {
-        if (amount == null) return "Zero Rupees Only";
+        log.debug("[AmountToWordsConverter] Converting amount: {} to words...", amount);
+        if (amount == null) {
+            log.warn("[AmountToWordsConverter] Amount is null, returning 'Zero Rupees Only'");
+            return "Zero Rupees Only";
+        }
 
         long rupees = amount.longValue();
         int paise   = amount.subtract(BigDecimal.valueOf(rupees))
@@ -45,7 +51,9 @@ public class AmountToWordsConverter {
         }
 
         result.append(" Only");
-        return result.toString();
+        String words = result.toString();
+        log.debug("[AmountToWordsConverter] Conversion result: {} -> \"{}\"", amount, words);
+        return words;
     }
 
     private String convertToWords(long number) {
