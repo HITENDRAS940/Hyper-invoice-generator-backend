@@ -1,7 +1,6 @@
 package com.hyper.invoicebackend.service;
 
 import com.cloudinary.Cloudinary;
-import com.cloudinary.Transformation;
 import com.cloudinary.utils.ObjectUtils;
 import com.hyper.invoicebackend.exception.CloudinaryUploadException;
 import lombok.RequiredArgsConstructor;
@@ -46,14 +45,8 @@ public class CloudinaryService {
             Object bytes        = uploadResult.get("bytes");
             Object resourceType = uploadResult.get("resource_type");
 
-            // Build a proper download URL with fl_attachment:<filename> so the browser
-            // downloads with the correct filename instead of trying to render the PDF
-            String downloadUrl = cloudinary.url()
-                    .resourceType("image")
-                    .secure(true)
-                    .transformation(new Transformation()
-                            .flags("attachment"))
-                    .generate(fullPublicId + ".pdf");
+            String secureUrl = (String) uploadResult.get("secure_url");
+            String downloadUrl = secureUrl.replace("/upload/", "/upload/fl_attachment/");
 
             log.info("[CloudinaryService] Upload SUCCESS in {} ms | downloadUrl: {}", elapsed, downloadUrl);
             log.debug("[CloudinaryService] Cloudinary response details -> public_id: '{}', bytes: {}, resource_type: {}, created_at: {}",
