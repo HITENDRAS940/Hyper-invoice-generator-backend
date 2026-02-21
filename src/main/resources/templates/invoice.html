@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Invoice</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 14px;
+            color: #333333;
+            background-color: #ffffff;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px;
+        }
+
+        /* Header */
+        .header {
+            display: table;
+            width: 100%;
+            margin-bottom: 40px;
+            border-bottom: 3px solid #4F46E5;
+            padding-bottom: 20px;
+        }
+
+        .header-left {
+            display: table-cell;
+            width: 50%;
+            vertical-align: middle;
+        }
+
+        .header-right {
+            display: table-cell;
+            width: 50%;
+            vertical-align: middle;
+            text-align: right;
+        }
+
+        .company-name {
+            font-size: 28px;
+            font-weight: bold;
+            color: #4F46E5;
+        }
+
+        .company-tagline {
+            font-size: 12px;
+            color: #888888;
+            margin-top: 4px;
+        }
+
+        .invoice-title {
+            font-size: 36px;
+            font-weight: bold;
+            color: #4F46E5;
+            letter-spacing: 2px;
+        }
+
+        .invoice-number {
+            font-size: 13px;
+            color: #555555;
+            margin-top: 6px;
+        }
+
+        /* Info section */
+        .info-section {
+            display: table;
+            width: 100%;
+            margin-bottom: 30px;
+        }
+
+        .info-left {
+            display: table-cell;
+            width: 50%;
+            vertical-align: top;
+        }
+
+        .info-right {
+            display: table-cell;
+            width: 50%;
+            vertical-align: top;
+            text-align: right;
+        }
+
+        .info-label {
+            font-size: 11px;
+            color: #888888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+
+        .info-value {
+            font-size: 14px;
+            color: #333333;
+            font-weight: bold;
+        }
+
+        .info-sub-value {
+            font-size: 13px;
+            color: #555555;
+        }
+
+        /* Divider */
+        .divider {
+            border: none;
+            border-top: 1px solid #e0e0e0;
+            margin: 20px 0;
+        }
+
+        /* Table */
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+
+        .items-table thead tr {
+            background-color: #4F46E5;
+            color: #ffffff;
+        }
+
+        .items-table thead th {
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .items-table thead th:last-child {
+            text-align: right;
+        }
+
+        .items-table tbody tr {
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .items-table tbody tr:nth-child(even) {
+            background-color: #f9f9ff;
+        }
+
+        .items-table tbody td {
+            padding: 12px 16px;
+            font-size: 13px;
+            color: #444444;
+        }
+
+        .items-table tbody td:last-child {
+            text-align: right;
+            font-weight: bold;
+        }
+
+        /* Summary section */
+        .summary-section {
+            display: table;
+            width: 100%;
+            margin-bottom: 30px;
+        }
+
+        .summary-spacer {
+            display: table-cell;
+            width: 55%;
+        }
+
+        .summary-box {
+            display: table-cell;
+            width: 45%;
+            vertical-align: top;
+        }
+
+        .summary-row {
+            display: table;
+            width: 100%;
+            padding: 8px 0;
+            border-bottom: 1px solid #eeeeee;
+        }
+
+        .summary-label {
+            display: table-cell;
+            font-size: 13px;
+            color: #666666;
+        }
+
+        .summary-value {
+            display: table-cell;
+            text-align: right;
+            font-size: 13px;
+            font-weight: bold;
+            color: #333333;
+        }
+
+        .total-row {
+            background-color: #4F46E5;
+            padding: 12px 16px;
+            margin-top: 8px;
+        }
+
+        .total-label {
+            display: table-cell;
+            font-size: 15px;
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        .total-value {
+            display: table-cell;
+            text-align: right;
+            font-size: 18px;
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        /* Simple summary (no line items) */
+        .simple-total {
+            text-align: right;
+            margin-bottom: 30px;
+        }
+
+        .simple-total-box {
+            display: inline-block;
+            background-color: #4F46E5;
+            color: #ffffff;
+            padding: 16px 32px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        /* Footer */
+        .footer {
+            border-top: 2px solid #4F46E5;
+            padding-top: 20px;
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .footer p {
+            font-size: 12px;
+            color: #888888;
+            margin-bottom: 4px;
+        }
+
+        .thank-you {
+            font-size: 16px;
+            font-weight: bold;
+            color: #4F46E5;
+            margin-bottom: 8px;
+        }
+
+        /* Status badge */
+        .badge {
+            display: inline-block;
+            background-color: #D1FAE5;
+            color: #065F46;
+            font-size: 11px;
+            font-weight: bold;
+            padding: 4px 10px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <!-- Header -->
+    <div class="header">
+        <div class="header-left">
+            <div class="company-name">HyperInvoice</div>
+            <div class="company-tagline">Fast, Reliable &amp; Smart Invoicing</div>
+        </div>
+        <div class="header-right">
+            <div class="invoice-title">INVOICE</div>
+            <div class="invoice-number"># <span th:text="${invoiceNumber}">INV-20260221-ABCD1234</span></div>
+            <div style="margin-top: 8px;">
+                <span class="badge">PAID</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Info Section -->
+    <div class="info-section">
+        <div class="info-left">
+            <div class="info-label">Billed To</div>
+            <div class="info-value" th:text="${customerName}">John Doe</div>
+            <div class="info-sub-value" th:text="${customerEmail}">john@example.com</div>
+            <div th:if="${bookingId}" class="info-sub-value" style="margin-top: 4px;">
+                Booking ID: <span th:text="${bookingId}">123</span>
+            </div>
+        </div>
+        <div class="info-right">
+            <div class="info-label">Invoice Date</div>
+            <div class="info-value" th:text="${invoiceDate}">2026-02-21</div>
+            <div style="margin-top: 12px;">
+                <div class="info-label">Invoice Number</div>
+                <div class="info-sub-value" th:text="${invoiceNumber}">INV-20260221-ABCD1234</div>
+            </div>
+        </div>
+    </div>
+
+    <hr class="divider"/>
+
+    <!-- Line Items Table (if present) -->
+    <div th:if="${lineItems != null and !lineItems.empty}">
+        <table class="items-table">
+            <thead>
+            <tr>
+                <th style="width: 5%;">#</th>
+                <th style="width: 50%;">Description</th>
+                <th style="width: 15%; text-align: center;">Qty</th>
+                <th style="width: 15%; text-align: right;">Unit Price</th>
+                <th style="width: 15%;">Total</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="item, iterStat : ${lineItems}">
+                <td th:text="${iterStat.count}">1</td>
+                <td th:text="${item.description}">Turf Booking - Ground A</td>
+                <td style="text-align: center;" th:text="${item.quantity}">1</td>
+                <td style="text-align: right;" th:text="'&#8377; ' + ${#numbers.formatDecimal(item.unitPrice, 1, 2)}">&#8377; 500.00</td>
+                <td th:text="'&#8377; ' + ${#numbers.formatDecimal(item.quantity * item.unitPrice, 1, 2)}">&#8377; 500.00</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <!-- Summary with line items -->
+        <div class="summary-section">
+            <div class="summary-spacer"></div>
+            <div class="summary-box">
+                <div class="summary-row">
+                    <span class="summary-label">Subtotal</span>
+                    <span class="summary-value" th:text="'&#8377; ' + ${#numbers.formatDecimal(amount, 1, 2)}">&#8377; 1000.00</span>
+                </div>
+                <div class="summary-row">
+                    <span class="summary-label">Tax (0%)</span>
+                    <span class="summary-value">&#8377; 0.00</span>
+                </div>
+                <div class="total-row" style="display: table; width: 100%;">
+                    <span class="total-label">TOTAL</span>
+                    <span class="total-value" th:text="'&#8377; ' + ${#numbers.formatDecimal(amount, 1, 2)}">&#8377; 1000.00</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Simple total (no line items) -->
+    <div th:if="${lineItems == null or lineItems.empty}">
+        <table class="items-table">
+            <thead>
+            <tr>
+                <th>Description</th>
+                <th style="text-align: right;">Amount</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>Booking Service - <span th:text="${customerName}">John Doe</span></td>
+                <td th:text="'&#8377; ' + ${#numbers.formatDecimal(amount, 1, 2)}">&#8377; 1000.00</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <div class="simple-total">
+            <div class="simple-total-box">
+                TOTAL: &#8377; <span th:text="${#numbers.formatDecimal(amount, 1, 2)}">1000.00</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <div class="thank-you">Thank you for your business!</div>
+        <p>HyperInvoice | support@hyperinvoice.com | www.hyperinvoice.com</p>
+        <p>This is a system-generated invoice. No signature required.</p>
+    </div>
+
+</div>
+</body>
+</html>
+
