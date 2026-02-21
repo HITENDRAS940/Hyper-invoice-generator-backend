@@ -1,6 +1,7 @@
 package com.hyper.invoicebackend.service;
 
 import com.cloudinary.Cloudinary;
+import com.cloudinary.Transformation;
 import com.cloudinary.utils.ObjectUtils;
 import com.hyper.invoicebackend.exception.CloudinaryUploadException;
 import lombok.RequiredArgsConstructor;
@@ -41,19 +42,23 @@ public class CloudinaryService {
             );
 
             long elapsed = System.currentTimeMillis() - start;
-            String rawUrl       = (String) uploadResult.get("secure_url");
             Object uploadedAt   = uploadResult.get("created_at");
             Object bytes        = uploadResult.get("bytes");
             Object resourceType = uploadResult.get("resource_type");
 
-            // fl_attachment forces Content-Disposition: attachment → browser downloads instead of rendering
-            // Works only on resource_type=image; insert the flag after /upload/
-            String secureUrl = rawUrl.replace("/image/upload/", "/image/upload/fl_attachment/");
+            // Build a proper download URL with fl_attachment:<filename> so the browser
+            // downloads with the correct filename instead of trying to render the PDF
+            String downloadUrl = cloudinary.url()
+                    .resourceType("image")
+                    .transformation(new Transformation()
+                            .flags("attachment:" + publicId + ".pdf"))
+                    .secure(true)
+                    .generate(fullPublicId);
 
-            log.info("[CloudinaryService] Upload SUCCESS in {} ms | downloadUrl: {}", elapsed, secureUrl);
+            log.info("[CloudinaryService] Upload SUCCESS in {} ms | downloadUrl: {}", elapsed, downloadUrl);
             log.debug("[CloudinaryService] Cloudinary response details -> public_id: '{}', bytes: {}, resource_type: {}, created_at: {}",
                     fullPublicId, bytes, resourceType, uploadedAt);
-            return secureUrl;
+            return downloadUrl;
 
         } catch (Exception e) {
             log.error("[CloudinaryService] Upload FAILED after {} ms | publicId: '{}' | error: {}",
