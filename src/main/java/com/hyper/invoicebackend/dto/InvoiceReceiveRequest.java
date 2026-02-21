@@ -1,16 +1,14 @@
 package com.hyper.invoicebackend.dto;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class InvoiceResponseDTO {
-    private String invoiceNumber;
-    private String cloudinaryUrl;
-    private String message;
+public class InvoiceReceiveRequest {
+    private Long bookingId;
+    private String invoiceUrl;
 }
+

@@ -1,0 +1,49 @@
+# ═══════════════════════════════════════════════════════════════════════════
+# render.yaml — Render Infrastructure as Code
+# Service: HyperInvoiceBackend (stateless, no database)
+# Docs: https://render.com/docs/infrastructure-as-code
+# ═══════════════════════════════════════════════════════════════════════════
+
+services:
+
+  - type: web
+    name: hyper-invoice-backend
+    runtime: docker                      # use our Dockerfile
+    dockerfilePath: ./Dockerfile         # path relative to repo root
+    region: singapore                    # closest to India
+    plan: free                           # 512 MB RAM, shared CPU
+
+    # ── Auto-deploy ─────────────────────────────────────────────────────────
+    autoDeploy: true                     # redeploy on every push to branch
+
+    # ── Health check ────────────────────────────────────────────────────────
+    # Render will mark the deploy failed if this path doesn't return 2xx
+    healthCheckPath: /actuator/health
+
+    # ── Environment variables ────────────────────────────────────────────────
+    # Set the actual values in the Render dashboard → Environment tab.
+    # They are listed here so Render knows they are required.
+    envVars:
+
+      # Cloudinary credentials
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false                      # set manually in dashboard
+
+      - key: CLOUDINARY_API_KEY
+        sync: false
+
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+
+      # Booking API base URL (override if the URL ever changes)
+      - key: BOOKING_API_BASE_URL
+        value: https://hyper-render-prod.onrender.com
+
+      # Spring environment
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+
+      # Force UTF-8 in the container
+      - key: JAVA_TOOL_OPTIONS
+        value: "-Dfile.encoding=UTF-8"
+
