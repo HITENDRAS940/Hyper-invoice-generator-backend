@@ -31,32 +31,39 @@ public class CloudinaryService {
         log.debug("[CloudinaryService] Upload params -> resource_type: raw, folder: invoices, format: pdf");
         long start = System.currentTimeMillis();
         try {
-            // For raw files, we often need to append the extension manually to the public_id
-            // so that the downloaded file has the correct extension.
-            String finalPublicId = publicId.endsWith(".pdf") ? publicId : publicId + ".pdf";
+            // For standard PDF upload (as image type), we don't need to append extension to public_id manually.
+            // Cloudinary adds it on delivery.
 
+            // Upload as default resource_type (image) so we can use transformations like fl_attachment
             Map<String, Object> uploadResult = cloudinary.uploader().upload(
                     pdfBytes,
                     ObjectUtils.asMap(
-                            "resource_type", "raw",
                             "folder",        "invoices",
-                            "public_id",     finalPublicId
+                            "public_id",     publicId,
+                            "resource_type", "auto"
                     )
             );
 
             long elapsed = System.currentTimeMillis() - start;
-            Object uploadedAt   = uploadResult.get("created_at");
             Object bytes        = uploadResult.get("bytes");
             Object resourceType = uploadResult.get("resource_type");
+            Object uploadedAt   = uploadResult.get("created_at");
 
+            // We construct the URL with fl_attachment to force download
+            // secure_url usually looks like: https://res.cloudinary.com/demo/image/upload/v1570979139/invoices/my_invoice.pdf
+            // We want to inject /fl_attachment/ after /upload/
             String secureUrl = (String) uploadResult.get("secure_url");
-            // raw files do not support image transformations like fl_attachment in the URL path.
-            // If strictly needed, Content-Disposition headers should be set during upload.
-            String downloadUrl = secureUrl;
+            String downloadUrl;
+
+            if (secureUrl != null && secureUrl.contains("/upload/")) {
+                downloadUrl = secureUrl.replace("/upload/", "/upload/fl_attachment/");
+            } else {
+                downloadUrl = secureUrl;
+            }
 
             log.info("[CloudinaryService] Upload SUCCESS in {} ms | downloadUrl: {}", elapsed, downloadUrl);
             log.debug("[CloudinaryService] Cloudinary response details -> public_id: '{}', bytes: {}, resource_type: {}, created_at: {}",
-                    fullPublicId, bytes, resourceType, uploadedAt);
+                    publicId, bytes, resourceType, uploadedAt);
             return downloadUrl;
 
         } catch (Exception e) {
@@ -66,4 +73,3 @@ public class CloudinaryService {
         }
     }
 }
-
