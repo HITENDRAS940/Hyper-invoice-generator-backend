@@ -34,21 +34,21 @@ public class CloudinaryService {
             Map<String, Object> uploadResult = cloudinary.uploader().upload(
                     pdfBytes,
                     ObjectUtils.asMap(
-                            "resource_type", "raw",
+                            "resource_type", "image",
                             "public_id", fullPublicId,
-                            "format", "pdf",
-                            "flags", "attachment"
+                            "format", "pdf"
                     )
             );
 
             long elapsed = System.currentTimeMillis() - start;
-            String rawUrl      = (String) uploadResult.get("secure_url");
-            Object uploadedAt  = uploadResult.get("created_at");
-            Object bytes       = uploadResult.get("bytes");
+            String rawUrl       = (String) uploadResult.get("secure_url");
+            Object uploadedAt   = uploadResult.get("created_at");
+            Object bytes        = uploadResult.get("bytes");
             Object resourceType = uploadResult.get("resource_type");
 
-            // Append fl_attachment to force browser download when the URL is opened
-            String secureUrl = rawUrl.replace("/raw/upload/", "/raw/upload/fl_attachment/");
+            // fl_attachment forces Content-Disposition: attachment → browser downloads instead of rendering
+            // Works only on resource_type=image; insert the flag after /upload/
+            String secureUrl = rawUrl.replace("/image/upload/", "/image/upload/fl_attachment/");
 
             log.info("[CloudinaryService] Upload SUCCESS in {} ms | downloadUrl: {}", elapsed, secureUrl);
             log.debug("[CloudinaryService] Cloudinary response details -> public_id: '{}', bytes: {}, resource_type: {}, created_at: {}",
