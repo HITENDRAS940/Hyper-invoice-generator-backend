@@ -81,7 +81,7 @@ public class BookingApiClient {
         long start = System.currentTimeMillis();
         try {
             restClient.post()
-                    .uri("/invoice-receive")
+                    .uri("/api/invoice/invoice-receive")
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(new InvoiceReceiveRequest(bookingId, invoiceUrl))
                     .retrieve()
